@@ -1,7 +1,12 @@
 const express = require("express");
 const cors = require("cors");
+const fs = require("fs");
+const util = require("util");
+
 //const dotenv = require('dotenv')
 //const path = require('path')
+
+const writeFileAsync = util.promisify(fs.writeFile);
 
 const http = require("http");
 const getFilledForm = require("./pricingService");
@@ -41,6 +46,49 @@ app.post("/form-prices", (req, res) => {
   const result = getFilledForm(resolvedForm);
   res.send(result);
 });
+
+app.get("/works", (req, res) => {
+  const streamPrices = fs.readFileSync(getPricesPath());
+  const prices = JSON.parse(streamPrices);
+  res.json(Object.keys(prices));
+});
+
+app.post("/work", async (req, res) => {
+  try {
+    const streamPrices = fs.readFileSync(getPricesPath());
+    const prices = JSON.parse(streamPrices);
+
+    const newWork = req.body;
+    const pricesWithNewWork = { ...prices, ...newWork };
+    await writeFileAsync(getPricesPath(), JSON.stringify(pricesWithNewWork));
+    res.send("success");
+  } catch (error) {
+    res.status(500).send("error");
+  }
+});
+
+app.delete("/work/:workName", async (req, res) => {
+  try {
+    const streamPrices = fs.readFileSync(getPricesPath());
+    const prices = JSON.parse(streamPrices);
+
+    const pricesCopy = JSON.parse(JSON.stringify(prices));
+    const workName = req.params.workName;
+    console.log({ workName });
+    delete pricesCopy[workName];
+    console.log({ pricesCopy: JSON.stringify(pricesCopy) });
+
+    await writeFileAsync(getPricesPath(), JSON.stringify(pricesCopy));
+    res.send("success");
+  } catch (error) {
+    res.status(500).send("error");
+  }
+});
+
+function getPricesPath() {
+  var filePathPrices = "./prices.json";
+  return filePathPrices;
+}
 
 //app.use('/api/vacation', vacationRouter)
 //app.use('/api/user', userRouter)

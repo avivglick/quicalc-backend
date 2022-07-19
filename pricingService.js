@@ -10,22 +10,8 @@ function getFilledForm(resolvedForm) {
   };
 
   return result;
-  //var suggestions = OfferSuggestions(googleFormCSV);
-
-  //  console.log(pricesAndSuggestions, totalPrice, suggestions);
 }
 
-/*
-{
-    'sdfgsdfgsdfg': 'dsfg',
-    'sdfsdfgdsf': 'dfg'
-}
-
-{
-    'dsfhgsdfgh': 54,
-    'dsfgsd': 34,
-    'total': 20
-} */
 function getItemPrice(workName, budget) {
   const streamPrices = fs.readFileSync(getPricesPath());
   const prices = JSON.parse(streamPrices);
